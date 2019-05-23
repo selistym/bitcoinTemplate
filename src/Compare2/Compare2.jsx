@@ -23,7 +23,7 @@ export const Compare2 = (props) => {
   const [dynaColumn, setDynaColumn] = useState([]);
   const fetched = useListCoins();
   
-  const visibleFields = [
+  const visibleFieldsData = [
     {
       id: 0,
       label: "Coin Symbol",
@@ -147,7 +147,7 @@ export const Compare2 = (props) => {
     }
   ];
 
-  const visibleFieldsColumn = [    
+  const visibleFieldsDataColumn = [    
     {
       title: 'All Fields',
       dataIndex: 'label',
@@ -165,7 +165,8 @@ export const Compare2 = (props) => {
   };
 
   const rowSelectionField = {
-    onChange: (selectedRowKeys, selectedRows) => {      
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(selectedRows.length, 'leng');
       setSelectedFields(selectedRows);
     },
     getCheckboxProps: record => ({
@@ -235,7 +236,7 @@ export const Compare2 = (props) => {
     ];
     selectedFields.forEach(e => {
       replaces.push(...coinColumnsLong.filter(c => c.dataIndex === e.field));      
-    });    
+    });
     setDynaColumn(replaces);    
   }, [selectedFields]);
 
@@ -248,7 +249,7 @@ export const Compare2 = (props) => {
           <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280}}>
             <div className='tableGroup' style={{display:'flex', margin: '24px 16px', padding: 24, background: '#fff', justifyContent:'space-around'}}>
               <Table key={0} rowKey={coin => coin.coin_id} style={{ width: '40%' }} rowSelection={rowSelection} dataSource={coins.sort(dynamicSort('full_name'))} columns={coinColumnsShort} size="small" />
-              <Table key={1} rowKey={field => field.id} dataSource={visibleFields} rowSelection={rowSelectionField} columns={visibleFieldsColumn} size="small" style={{ width: '40%' }}/>
+              <Table key={1} rowKey={field => field.id} title={() => 'Parameters'} showHeader={false} dataSource={visibleFieldsData} rowSelection={rowSelectionField} columns={visibleFieldsDataColumn} size="small" style={{ width: '40%' }}/>
             </div>
             <div>
               {showCompare2 && <Table key={3} pagination={false} rowKey={coin => coin.coin_id} dataSource={compared.sort(dynamicSort('full_name'))} columns={dynaColumn} /> }           
