@@ -50,6 +50,12 @@ export const Navigation = (props) => {
             <span>Exchange</span>
           </NavLink>
         </Menu.Item>
+        <Menu.Item key="6">
+          <NavLink to="/compare2">
+            <Icon type="search" />
+            <span>CompareTwo</span>
+          </NavLink>
+        </Menu.Item>
       </Menu>
     </Sider>
   );

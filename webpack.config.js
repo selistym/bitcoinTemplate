@@ -36,7 +36,7 @@ module.exports = {
   externals: {
     // global app config object
     config: JSON.stringify({
-      apiUrl: 'http://localhost:3000'
+      apiUrl: 'http://cip.dtra.io:3000'
     })
   }
 }

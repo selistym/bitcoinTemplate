@@ -9,6 +9,7 @@ import { Subscriptions } from '../Subscriptions';
 import { Exchange } from '../Exchange';
 import { Login } from '../LoginPage';
 import { PrivateRoute } from './PrivateRoute';
+import { Compare2 } from '../Compare2';
 
 export const App = () => {
   // returning application
@@ -20,6 +21,7 @@ export const App = () => {
         <PrivateRoute p="/weight" c={Weight} />
         <PrivateRoute p="/subscriptions" c={Subscriptions} />
         <PrivateRoute p="/exchange" c={Exchange} />
+        <PrivateRoute p="/compare2" c={Compare2} />
         <Route path="/login" component={Login} />
       </div>
     </Router>
