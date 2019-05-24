@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import config from 'config';
 import { Redirect } from 'react-router-dom';
 import { Table, Layout } from 'antd';
@@ -12,53 +12,61 @@ const loading = require('../_helpers/loading.gif');
 import { authHeader, dynamicSort } from '../_helpers';
 const { Content } = Layout;
 
-export const Compare2 = (props) => {
+export const Compare2 = (props) => {  
+  
+  const SHOW_LIMIT = 6;
 
   const [coins, toCoins] = useState([]);
   const [selectedCoins, setSelected] = useState([]);
-  const [selectedFields, setSelectedFields] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [compared, toCompare] = useState([]);
   const [showCompare2, toShow] = useState(false);
   const [sleep, setSleep] = useState(null);
   const [dynaColumn, setDynaColumn] = useState([]);
+  const prevFields = useRef();
   const fetched = useListCoins();
   
+  const visibleFieldsDataColumn = [    
+    {
+      title: 'All Fields',
+      dataIndex: 'name'
+    }
+  ];
   const visibleFieldsData = [
     {
-      id: 0,
-      label: "Coin Symbol",
+      key: "0",
+      name: "Coin Symbol",
       field: 'coin_symbol'
     },{
-      id: 1,
-      label: "Price",
+      key: "1",
+      name: "Price",
       field: 'asset_price'
     },{
-      id: 2,
-      label: "All Time High",
+      key: "2",
+      name: "All Time High",
       field: 'ath'
     },{
-      id: 3,
-      label: "All Time Low",
+      key: "3",
+      name: "All Time Low",
       field: 'atl'
     },{
-      id: 4,
-      label: "Buy Support 10%",
+      key: "4",
+      name: "Buy Support 10%",
       field: 'buy_support'
     },{
-      id: 5,
-      label: "Sell Support 10%",
+      key: "5",
+      name: "Sell Support 10%",
       field: 'sell_support'
     },{
-      id: 6,
-      label: "Price Change(24H)",
+      key: "6",
+      name: "Price Change(24H)",
       field: 'asset_price_old'
     },{
-      id: 7,
-      label: "Volumn Change",
+      key: "7",
+      name: "Volumn Change",
       field: 'volume_24'
     }
   ];
-  
   const coinColumnsShort = [
     {
       title: 'Icon',
@@ -77,8 +85,7 @@ export const Compare2 = (props) => {
       key: '3'
     }
   ];
-
-  let coinColumnsLong = [
+  const coinColumnsLong = [
     {
       title: 'Icon',
       dataIndex: 'img_url',
@@ -146,33 +153,6 @@ export const Compare2 = (props) => {
       }
     }
   ];
-
-  const visibleFieldsDataColumn = [    
-    {
-      title: 'All Fields',
-      dataIndex: 'label',
-      key: '1'
-    }
-  ];
-
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {      
-      setSelected(selectedRows);
-    },
-    getCheckboxProps: record => ({
-      name: record.name
-    }),
-  };
-
-  const rowSelectionField = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(selectedRows.length, 'leng');
-      setSelectedFields(selectedRows);
-    },
-    getCheckboxProps: record => ({
-      name: record.label
-    }),
-  };
   useEffect(() => {
     toCoins(fetched);    
     setTimeout(() => {
@@ -218,43 +198,63 @@ export const Compare2 = (props) => {
   }, [compared]);
   
   useEffect(() => {
-    let replaces = [
-      {
-        title: 'Icon',
-        dataIndex: 'img_url',
-        key: '1',
-        render: image => {
-          const link = 'https://cryptocompare.com' + image;
-          return <img src={loading} data-src={link} width="20" height="20" />;
-        }
-      },
-      {
-        title: 'Coin Name',
-        dataIndex: 'coin_title',
-        key: '2'
-      }
-    ];
-    selectedFields.forEach(e => {
-      replaces.push(...coinColumnsLong.filter(c => c.dataIndex === e.field));      
-    });
-    setDynaColumn(replaces);    
-  }, [selectedFields]);
+    // let replaces = [
+    //   {
+    //     title: 'Icon',
+    //     dataIndex: 'img_url',
+    //     key: '1',
+    //     render: image => {
+    //       const link = 'https://cryptocompare.com' + image;
+    //       return <img src={loading} data-src={link} width="20" height="20" />;
+    //     }
+    //   },
+    //   {
+    //     title: 'Coin Name',
+    //     dataIndex: 'coin_title',
+    //     key: '2'
+    //   }
+    // ];
+    // selectedFields.forEach(e => {
+    //   replaces.push(...coinColumnsLong.filter(c => c.dataIndex === e.field));      
+    // });
+    // setDynaColumn(replaces);    
+  }, [selectedRowKeys]);
 
+  const rowSelection = {    
+    onChange: (selectedRowKeys, selectedRows) => {      
+      setSelected(selectedRows);
+    },
+    getCheckboxProps: record => ({
+      name: record.name
+    }),
+  };
+  const rowSelectionField = {
+    selectedRowKeys,
+    onChange: selectRowKeys => {
+      if (selectRowKeys.length <= SHOW_LIMIT) {
+        setSelectedRowKeys(selectRowKeys);
+        prevFields.current = selectRowKeys;        
+      } else {
+        setSelectedRowKeys(prevFields.current);
+      }
+    }
+    // onSelect: OnSelectedRowKeys
+  };
   return (
     <div>
-      <Layout>
+      <Layout>{console.log('render')}
         <Navigation activeNav="2" />
         <Layout>
           <CustomHeader />
           <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280}}>
             <div className='tableGroup' style={{display:'flex', margin: '24px 16px', padding: 24, background: '#fff', justifyContent:'space-around'}}>
               <Table key={0} rowKey={coin => coin.coin_id} style={{ width: '40%' }} rowSelection={rowSelection} dataSource={coins.sort(dynamicSort('full_name'))} columns={coinColumnsShort} size="small" />
-              <Table key={1} rowKey={field => field.id} title={() => 'Parameters'} showHeader={false} dataSource={visibleFieldsData} rowSelection={rowSelectionField} columns={visibleFieldsDataColumn} size="small" style={{ width: '40%' }}/>
+              <Table key={1} rowKey={vfield => vfield.key} pagination={false} scroll={{ y: 240 }} title={() => 'Parameters'} showHeader={false} rowSelection={rowSelectionField} columns={visibleFieldsDataColumn} dataSource={visibleFieldsData} size="small" style={{ width: '40%' }}/>
             </div>
             <div>
               {showCompare2 && <Table key={3} pagination={false} rowKey={coin => coin.coin_id} dataSource={compared.sort(dynamicSort('full_name'))} columns={dynaColumn} /> }           
             </div>
-          </Content>          
+          </Content>
         </Layout>
       </Layout>
     </div>
