@@ -14,7 +14,7 @@ const { Content } = Layout;
 
 export const Compare2 = (props) => {  
   
-  const SHOW_LIMIT = 6;
+  const SHOW_LIMIT = 3;
 
   const [coins, toCoins] = useState([]);
   const [selectedCoins, setSelected] = useState([]);
@@ -34,10 +34,6 @@ export const Compare2 = (props) => {
   ];
   const visibleFieldsData = [
     {
-      key: "0",
-      name: "Coin Symbol",
-      field: 'coin_symbol'
-    },{
       key: "1",
       name: "Price",
       field: 'asset_price'
@@ -99,31 +95,26 @@ export const Compare2 = (props) => {
       title: 'Coin Name',
       dataIndex: 'coin_title',
       key: '2'
-    },
-    {
-      title: 'Coin Symbol',
-      dataIndex: 'coin_symbol',
-      key: '3'
-    },
+    },    
     {
       title: 'Price',
       dataIndex: 'asset_price',
-      key: '4'
+      key: '3'
     },
     {
       title: 'All Time High',
       dataIndex: 'ath',
-      key: '5'
+      key: '4'
     },
     {
       title: 'All Time Low',
       dataIndex: 'atl',
-      key: '6'
+      key: '5'
     },
     {
       title: 'Buy Support 10%',
       dataIndex: 'buy_support',
-      key: '7',
+      key: '6',
       render: price => {
         return Number.parseInt(price) || 0
       }
@@ -131,7 +122,7 @@ export const Compare2 = (props) => {
     {
       title: 'Sell Support 10%',
       dataIndex: 'sell_support',
-      key: '8',
+      key: '7',
       render: price => {
         return Number.parseInt(price) || 0
       }
@@ -139,7 +130,7 @@ export const Compare2 = (props) => {
     {
       title: 'Price Change (24H)',
       dataIndex: 'asset_price_old',
-      key: '9',
+      key: '8',
       render: (price, row) => {
         return `${Number.parseInt(((row.asset_price - price) / row.asset_price)*100)}%`;
       }
@@ -147,7 +138,7 @@ export const Compare2 = (props) => {
     {
       title: 'Volume Change',
       dataIndex: 'volume_24',
-      key: '10',
+      key: '9',
       render: (volume, row) => {
         return `${Number.parseInt(((volume - row.volume_24_old) / volume)*100)}%`;
       }
@@ -198,26 +189,27 @@ export const Compare2 = (props) => {
   }, [compared]);
   
   useEffect(() => {
-    // let replaces = [
-    //   {
-    //     title: 'Icon',
-    //     dataIndex: 'img_url',
-    //     key: '1',
-    //     render: image => {
-    //       const link = 'https://cryptocompare.com' + image;
-    //       return <img src={loading} data-src={link} width="20" height="20" />;
-    //     }
-    //   },
-    //   {
-    //     title: 'Coin Name',
-    //     dataIndex: 'coin_title',
-    //     key: '2'
-    //   }
-    // ];
-    // selectedFields.forEach(e => {
-    //   replaces.push(...coinColumnsLong.filter(c => c.dataIndex === e.field));      
-    // });
-    // setDynaColumn(replaces);    
+    let replaces = [
+      {
+        title: 'Icon',
+        dataIndex: 'img_url',
+        key: '1',
+        render: image => {
+          const link = 'https://cryptocompare.com' + image;
+          return <img src={loading} data-src={link} width="20" height="20" />;
+        }
+      },
+      {
+        title: 'Coin Name',
+        dataIndex: 'coin_title',
+        key: '2'
+      }
+    ];
+    
+    selectedRowKeys.forEach(e => {      
+      replaces.push(...coinColumnsLong.filter(c =>c.key == (Number(e) + 2)));
+    });
+    setDynaColumn(replaces);
   }, [selectedRowKeys]);
 
   const rowSelection = {    
@@ -237,8 +229,7 @@ export const Compare2 = (props) => {
       } else {
         setSelectedRowKeys(prevFields.current);
       }
-    }
-    // onSelect: OnSelectedRowKeys
+    }    
   };
   return (
     <div>
