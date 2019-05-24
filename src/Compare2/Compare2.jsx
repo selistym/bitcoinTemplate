@@ -53,137 +53,138 @@ const coinColumnsLong = [
   },
   {
     title: 'TA score',
-    dataIndex: 'coin_ta_final',
+    dataIndex: 'ta_score',
     key: '3'
   },
   {
     title: 'Token supply',
-    dataIndex: 'supply',
+    dataIndex: 'token_supply',
     key: '4'
   },
   {
     title: 'Marketcap',
-    dataIndex: 'market_cap_usd',
+    dataIndex: 'marketcap',
     key: '5'
   },
   {
     title: 'Price USD',
-    dataIndex: 'close_usd',
-    key: '6'
+    dataIndex: 'asset_price_old',
+    key: '6',        
+    sorter: (a, b) => a.asset_price_old - b.asset_price_old
   },
   {
     title: 'Price change USD (24h)',
-    dataIndex: 'day_usd_change',
+    dataIndex: 'price_change_24',
     key: '7'
   },
   {
     title: 'Volume 24h USD',
-    dataIndex: 'vol_usd',
+    dataIndex: 'volume_24_old',
     key: '8'
   },
   {
     title: 'Volume change (24h)',
-    dataIndex: 'day_vol_change',
+    dataIndex: 'volume_change_24',
     key: '9'
   },
   {
     title: 'Twitter list',
-    dataIndex: 'tw_lists',
+    dataIndex: 'twitter_list',
     key: '10'
   },
   {
     title: 'Twitter favorites',
-    dataIndex: 'tw_fav',
+    dataIndex: 'twitter_favorites',
     key: '11'
   },
   {
     title: 'Twitter following',
-    dataIndex: 'tw_following',
+    dataIndex: 'twitter_following',
     key: '12'
   },
   {
     title: 'Twitter status',
-    dataIndex: 'tw_statuses',
+    dataIndex: 'twitter_status',
     key: '13'
   },
   {
     title: 'Twitter followers',
-    dataIndex: 'tw_followers',
+    dataIndex: 'twitter_followers',
     key: '14'
   },
   {
     title: 'Reddit active users',
-    dataIndex: 'red_active_users',
+    dataIndex: 'reddit_active_users',
     key: '15'
   },
   {
     title: 'Reddit posts',
-    dataIndex: 'red_post_avg',
+    dataIndex: 'reddit_posts',
     key: '16'
   },
   {
     title: 'Reddit comments',
-    dataIndex: 'red_comment_avg',
+    dataIndex: 'reddit_comments',
     key: '17'
   },
   {
     title: 'Reddit subscribers',
-    dataIndex: 'red_subs',
+    dataIndex: 'reddit_subscribers',
     key: '18'
   },
   {
     title: 'Github Closed issues',
-    dataIndex: 'code_rep_closed_issues',
+    dataIndex: 'github_closed_issues',
     key: '19'
   },
   {
     title: 'Github Open pull issues',
-    dataIndex: 'code_rep_open_pull_issues',
+    dataIndex: 'github_open_pull_issues',
     key: '20'
   },
   {
     title: 'Github Closed pull issues',
-    dataIndex: 'code_rep_closed_pull_issues',
+    dataIndex: 'github_closed_pull_issues',
     key: '21'
   },
   {
     title: 'Github Forks',
-    dataIndex: 'code_rep_forks',
+    dataIndex: 'github_forks',
     key: '22'
   },
   {
     title: 'Marketcap',
-    dataIndex: 'market_cap_usd',
+    dataIndex: 'marketcap',
     key: '23'
   },
   {
     title: 'Github Subscribers',
-    dataIndex: 'code_rep_subscribers',
+    dataIndex: 'github_subscribers',
     key: '24'
   },
   {
     title: 'Github',
-    dataIndex: 'code_rep_stars',
+    dataIndex: 'github_stars',
     key: '25'
   },
   {
     title: 'Volatilty 30 day (USD)',
-    dataIndex: 'volatilty_30_usd',
+    dataIndex: 'volatility_30_usd',
     key: '26'
   },
   {
     title: 'Volatilty 60 days (USD)',
-    dataIndex: 'volatilty_60_usd',
+    dataIndex: 'volatility_60_usd',
     key: '27'
   },
   {
     title: 'Volatilty 120 days (USD)',
-    dataIndex: 'volatilty_120_usd',
+    dataIndex: 'volatility_120_usd',
     key: '28'
   },
   {
     title: 'Volatilty 1 year (USD)',
-    dataIndex: 'volatilty_year_usd',
+    dataIndex: 'volatility_year_usd',
     key: '29'
   },
   {
@@ -193,18 +194,19 @@ const coinColumnsLong = [
   },
   {
     title: 'Days since ATH (USD)',
-    dataIndex: 'days_ath_usd',
+    dataIndex: 'ath',
     key: '31'
   },
   {
     title: 'Current Price/ATH (USD)',
-    dataIndex: 'current_div_ath_usd',
+    dataIndex: 'ath_div_current_usd',
     key: '32'
   },
   {
     title: 'ATL (USD)',
-    dataIndex: 'usd_atl',
-    key: '33'
+    dataIndex: 'atl',
+    key: '33',
+    sorter: (a, b) => a.atl - b.atl
   },
   {
     title: 'Days since ATL (USD)',
@@ -274,7 +276,8 @@ const coinColumnsLong = [
   {
     title: 'Buy Support 10%',
     dataIndex: 'buy_support_10',
-    key: '47'
+    key: '47',
+    render: price => price ? Number(price) : 0
   },
   {
     title: 'Buy Support 15%',
@@ -355,6 +358,7 @@ export const Compare2 = (props) => {
   const [showCompare2, toShow] = useState(false);
   const [sleep, setSleep] = useState(null);
   const [dynaColumn, setDynaColumn] = useState([]);
+  const [sortInfo, setSortInfo] = useState(null);
   const prevFields = useRef();
   const fetched = useListCoins();
 
@@ -393,12 +397,12 @@ export const Compare2 = (props) => {
     if (sleep) clearTimeout(sleep);
     setSleep(setTimeout(() => {
       if (selectedCoins.length <= 1) return;
-      const formatted = selectedCoins.map(s => s.coin_id);
+      const formatted = selectedCoins.map(s => s.coin_id);      
       fetch(`${config.apiUrl}/get_assets_params`, {
         method: 'POST',
         headers: authHeader(),
         body: JSON.stringify({ assets: formatted })
-      }).then(response => response.json()).then(data => {
+      }).then(response => response.json()).then(data => {        
         toCompare(data);
       });
     }, 500));
@@ -437,7 +441,9 @@ export const Compare2 = (props) => {
 
     selectedRowKeys.forEach(e => {
       let row = visibleFieldsData.filter(p => p.key === e)[0];
+
       replaces.push(...coinColumnsLong.filter(c => c.dataIndex === row.field));
+      
     });
     setDynaColumn(replaces);
   }, [selectedRowKeys]);
@@ -462,7 +468,7 @@ export const Compare2 = (props) => {
     }
   };
   return (
-    <div>
+    <div>{console.log(dynaColumn, 'setDynaColumn')}
       <Layout>
         <Navigation activeNav="2" />
         <Layout>
